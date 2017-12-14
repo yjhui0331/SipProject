@@ -321,6 +321,30 @@
     <LibraryPath>..\..\SDL2\lib\x86;..\..\ffmpeg\lib;$(LibraryPath)</LibraryPath>
     <IncludePath>..\..\ffmpeg\include;..\..\SDL2\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LibraryPath>..\..\SDL2\lib\x64;..\..\ffmpeg\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\..\ffmpeg\include;..\..\SDL2\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Dynamic|x64'">
+    <LibraryPath>..\..\SDL2\lib\x64;..\..\ffmpeg\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\..\ffmpeg\include;..\..\SDL2\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Static|x64'">
+    <LibraryPath>..\..\SDL2\lib\x64;..\..\ffmpeg\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\..\ffmpeg\include;..\..\SDL2\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LibraryPath>..\..\SDL2\lib\x64;..\..\ffmpeg\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\..\ffmpeg\include;..\..\SDL2\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-Dynamic|x64'">
+    <LibraryPath>..\..\SDL2\lib\x64;..\..\ffmpeg\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\..\ffmpeg\include;..\..\SDL2\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-Static|x64'">
+    <LibraryPath>..\..\SDL2\lib\x64;..\..\ffmpeg\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\..\ffmpeg\include;..\..\SDL2\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <!-- Compile and link option definition -->
   <ItemDefinitionGroup>
     <ClCompile>

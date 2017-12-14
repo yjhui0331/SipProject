@@ -320,6 +320,30 @@
     <IncludePath>..\..\ffmpeg\include;..\..\SDL2\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <LibraryPath>..\..\ffmpeg\lib;..\..\SDL2\lib\x86;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>..\..\ffmpeg\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\ffmpeg\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Dynamic|x64'">
+    <IncludePath>..\..\ffmpeg\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\ffmpeg\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Static|x64'">
+    <IncludePath>..\..\ffmpeg\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\ffmpeg\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>..\..\ffmpeg\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\ffmpeg\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-Dynamic|x64'">
+    <IncludePath>..\..\ffmpeg\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\ffmpeg\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-Static|x64'">
+    <IncludePath>..\..\ffmpeg\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\ffmpeg\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <!-- Compile and link option definition -->
   <ItemDefinitionGroup>
     <ClCompile>

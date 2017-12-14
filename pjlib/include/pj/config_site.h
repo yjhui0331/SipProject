@@ -20,3 +20,7 @@
 
 #define PJMEDIA_HAS_WEBRTC_AEC 1		//启用WEBRTC
 #define PJMEDIA_WEBRTC_AEC_USE_MOBILE 1 //启用WEBRTC
+
+#define PJ_CONFIG_MAXIMUM_SPEED 1 //开启最佳性能
+
+#include <pj/config_site_sample.h> 
