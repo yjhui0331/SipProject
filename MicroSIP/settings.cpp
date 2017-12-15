@@ -147,15 +147,6 @@ void AccountSettings::Init()
 	GetPrivateProfileString(section,_T("portKnockerPorts"), NULL, ptr, 256, iniFile);
 	portKnockerPorts.ReleaseBuffer();
 
-	ptr = lastCallNumber.GetBuffer(255);
-	GetPrivateProfileString(section,_T("lastCallNumber"), NULL, ptr, 256, iniFile);
-	lastCallNumber.ReleaseBuffer();
-
-	ptr = str.GetBuffer(255);
-	GetPrivateProfileString(section,_T("lastCallHasVideo"), NULL, ptr, 256, iniFile);
-	str.ReleaseBuffer();
-	lastCallHasVideo = (str == _T("1"));
-
 	ptr = str.GetBuffer(255);
 	GetPrivateProfileString(section,_T("enableLocalAccount"), NULL, ptr, 256, iniFile);
 	str.ReleaseBuffer();
@@ -201,7 +192,6 @@ void AccountSettings::Init()
 
 	ptr = ringingSound.GetBuffer(255);
 	GetPrivateProfileString(section,_T("ringingSound"), NULL, ptr, 256, iniFile);
-
 	ringingSound.ReleaseBuffer();
 	ptr = audioRingDevice.GetBuffer(255);
 	GetPrivateProfileString(section,_T("audioRingDevice"), NULL, ptr, 256, iniFile);
@@ -527,7 +517,7 @@ bool AccountSettings::AccountLoad(int id, Account *account)
 		CCrypto crypto;
 		if (crypto.DeriveKey((LPCTSTR)_GLOBAL_KEY)) {
 			try {			
-				if (/*!crypto.Decrypt(arPassword,passwordLocal)*/false) {
+				if (!crypto.Decrypt(arPassword,passwordLocal)) {
 					//--decode from old format
 					ptr = str.GetBuffer(255);
 					GetPrivateProfileString(section,_T("passwordSize"), NULL, ptr, 256, iniFile);
@@ -544,10 +534,6 @@ bool AccountSettings::AccountLoad(int id, Account *account)
 						//--delete old format addl.data
 						WritePrivateProfileString(section,_T("passwordSize"),NULL,iniFile);
 					}
-				}
-				else
-				{
-					bool b = crypto.Decrypt(arPassword, passwordLocal);
 				}
 			} catch (CArchiveException *e) {
 			}
@@ -661,22 +647,16 @@ void AccountSettings::AccountSave(int id, Account *account)
 	}
 
 	if (account->rememberPassword) {
-		WritePrivateProfileString(section, _T("username"), usernameLocal, iniFile);
-		CCrypto crypto;
-		CByteArray arPassword;
-		if (crypto.DeriveKey((LPCTSTR)_GLOBAL_KEY)
-			&& crypto.Encrypt(passwordLocal, arPassword)
-			) 
-		{
-			CString str = _T("");
-			str = Bin2String(&arPassword);
-			AfxMessageBox(str.GetBuffer(str.GetLength()));
-			WritePrivateProfileString(section, _T("password"), Bin2String(&arPassword), iniFile);
-		}
-		else 
-		{
-			WritePrivateProfileString(section, _T("password"), passwordLocal, iniFile);
-		}
+		WritePrivateProfileString(section,_T("username"),usernameLocal,iniFile);
+	CCrypto crypto;
+	CByteArray arPassword;
+	if (crypto.DeriveKey((LPCTSTR)_GLOBAL_KEY)
+		&& crypto.Encrypt(passwordLocal,arPassword)
+		) {
+			WritePrivateProfileString(section,_T("password"), Bin2String(&arPassword), iniFile);
+	} else {
+		WritePrivateProfileString(section,_T("password"), passwordLocal, iniFile);
+	}
 	}
 
 	WritePrivateProfileString(section,_T("authID"),account->authID,iniFile);
@@ -716,9 +696,6 @@ section = _T("Settings");
 	WritePrivateProfileString(section,_T("portKnockerHost"),portKnockerHost,iniFile);
 
 	WritePrivateProfileString(section,_T("portKnockerPorts"),portKnockerPorts,iniFile);
-
-	WritePrivateProfileString(section,_T("lastCallNumber"),lastCallNumber,iniFile);
-	WritePrivateProfileString(section,_T("lastCallHasVideo"),lastCallHasVideo?_T("1"):_T("0"),iniFile);
 
 	WritePrivateProfileString(section,_T("updatesInterval"),updatesInterval,iniFile);
 	str.Format(_T("%d"),checkUpdatesTime);

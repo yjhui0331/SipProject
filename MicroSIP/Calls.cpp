@@ -269,10 +269,9 @@ void Calls::MessageDlgOpen(BOOL isCall, BOOL hasVideo)
 	if (pos) {
 		int i = list->GetNextSelectedItem(pos);
 		Call *pCall = (Call *) list->GetItemData(i);
+		mainDlg->messagesDlg->AddTab(FormatNumber(pCall->number), pCall->name, TRUE, NULL, isCall && accountSettings.singleMode);
 		if (isCall) {
-			mainDlg->MakeCall(pCall->number, hasVideo);
-		} else {
-			mainDlg->MessagesOpen(pCall->number);
+			mainDlg->messagesDlg->Call(hasVideo);
 		}
 	}
 }

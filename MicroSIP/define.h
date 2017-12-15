@@ -28,8 +28,6 @@
 
 #define _GLOBAL_WIDTH_DEFAULT 315
 
-#define _GLOBAL_CALL_PICKUP "**"
-
 #define _GLOBAL_SHORTCUTS
 
 #define MACRO_ENABLE_LOCAL_ACCOUNT (accountSettings.enableLocalAccount || !accountSettings.accountId)

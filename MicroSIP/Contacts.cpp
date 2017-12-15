@@ -280,10 +280,11 @@ void Contacts::MessageDlgOpen(BOOL isCall, BOOL hasVideo)
 	if (pos) {
 		int i = list->GetNextSelectedItem(pos);
 		Contact *pContact = (Contact *) list->GetItemData(i);
+		CString commands;
+		CString numberFormated = FormatNumber(pContact->number, &commands);
+		mainDlg->messagesDlg->AddTab(numberFormated, pContact->name, TRUE, NULL, isCall && accountSettings.singleMode);
 		if (isCall) {
-			mainDlg->MakeCall(pContact->number, hasVideo);
-		} else {
-			mainDlg->MessagesOpen(pContact->number);
+			mainDlg->messagesDlg->Call(hasVideo, commands);
 		}
 	}
 }
@@ -304,7 +305,7 @@ void Contacts::OnMenuCallPickup()
 	if (pos) {
 		int i = list->GetNextSelectedItem(pos);
 		Contact *pContact = (Contact *) list->GetItemData(i);
-		mainDlg->messagesDlg->CallMake(_T(_GLOBAL_CALL_PICKUP)+pContact->number);
+		mainDlg->messagesDlg->CallMake(_T("**")+pContact->number);
 	}
 }
 
@@ -696,10 +697,7 @@ void Contacts::PresenceSubsribeOne(Contact *pContact)
 		buddy_cfg.subscribe=PJ_TRUE;
 		buddy_cfg.uri = StrToPjStr(GetSIPURI(pContact->number));
 		buddy_cfg.user_data = (void *)pContact;
-		pj_status_t status = pjsua_buddy_add(&buddy_cfg, &p_buddy_id);
-		if (status != PJ_SUCCESS) {
-			AfxMessageBox(_T("Presence Subscription error: ")+GetErrorMessage(status));
-		}
+		pjsua_buddy_add(&buddy_cfg, &p_buddy_id);
 	}
 }
 

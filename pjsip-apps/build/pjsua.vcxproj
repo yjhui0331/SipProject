@@ -298,7 +298,7 @@
     <_ProjectFileVersion>14.0.22823.1</_ProjectFileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>..\..\SDL2\lib\x86;..\..\ffmpeg\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>..\..\SDL2\lib\x86;..\..\ffmpeg\lib\x86;$(LibraryPath)</LibraryPath>
     <IncludePath>..\..\ffmpeg\include;..\..\SDL2\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Dynamic|Win32'">
@@ -360,7 +360,7 @@
     <Link>
       <AdditionalDependencies Condition="'$(API_Family)'=='WinDesktop'">Iphlpapi.lib;dsound.lib;dxguid.lib;netapi32.lib;mswsock.lib;ws2_32.lib;odbc32.lib;odbccp32.lib;ole32.lib;user32.lib;gdi32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>..\..\bin\$(ProjectName)-$(TargetCPU)-$(Platform)-vc$(VSVer)-$(Configuration).exe</OutputFile>
+      <OutputFile>..\..\x86bin\$(ProjectName)-$(TargetCPU)-$(Platform)-vc$(VSVer)-$(Configuration).exe</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
@@ -383,6 +383,7 @@
     <Link>
       <AdditionalDependencies Condition="'$(API_Family)'=='WinDesktop'">Iphlpapi.lib;dsound.lib;dxguid.lib;netapi32.lib;mswsock.lib;ws2_32.lib;odbc32.lib;odbccp32.lib;ole32.lib;user32.lib;gdi32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <TargetMachine>MachineX64</TargetMachine>
+      <OutputFile>..\..\x64bin\$(ProjectName)-$(TargetCPU)-$(Platform)-vc$(VSVer)-$(Configuration).exe</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -395,7 +396,7 @@
       <AdditionalDependencies Condition="'$(API_Family)'=='WinDesktop'">Iphlpapi.lib;dsound.lib;dxguid.lib;netapi32.lib;mswsock.lib;ws2_32.lib;odbc32.lib;odbccp32.lib;ole32.lib;user32.lib;gdi32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries Condition="'$(API_Family)'=='WinDesktop'">msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <AdditionalOptions>/SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>..\..\bin\$(ProjectName)-$(TargetCPU)-$(Platform)-vc$(VSVer)-$(Configuration).exe</OutputFile>
+      <OutputFile>..\..\x86bin\$(ProjectName)-$(TargetCPU)-$(Platform)-vc$(VSVer)-$(Configuration).exe</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
@@ -420,6 +421,7 @@
       <AdditionalDependencies Condition="'$(API_Family)'=='WinDesktop'">Iphlpapi.lib;dsound.lib;dxguid.lib;netapi32.lib;mswsock.lib;ws2_32.lib;odbc32.lib;odbccp32.lib;ole32.lib;user32.lib;gdi32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <TargetMachine>MachineX64</TargetMachine>
+      <OutputFile>..\..\x64bin\$(ProjectName)-$(TargetCPU)-$(Platform)-vc$(VSVer)-$(Configuration).exe</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Static|Win32'">
@@ -431,7 +433,7 @@
     <Link>
       <AdditionalDependencies Condition="'$(API_Family)'=='WinDesktop'">Iphlpapi.lib;dsound.lib;dxguid.lib;netapi32.lib;mswsock.lib;ws2_32.lib;odbc32.lib;odbccp32.lib;ole32.lib;user32.lib;gdi32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>..\..\bin\$(ProjectName)-$(TargetCPU)-$(Platform)-vc$(VSVer)-$(Configuration).exe</OutputFile>
+      <OutputFile>..\..\x86bin\$(ProjectName)-$(TargetCPU)-$(Platform)-vc$(VSVer)-$(Configuration).exe</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Static|ARM'">
@@ -455,6 +457,7 @@
     <Link>
       <AdditionalDependencies Condition="'$(API_Family)'=='WinDesktop'">Iphlpapi.lib;dsound.lib;dxguid.lib;netapi32.lib;mswsock.lib;ws2_32.lib;odbc32.lib;odbccp32.lib;ole32.lib;user32.lib;gdi32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <TargetMachine>MachineX64</TargetMachine>
+      <OutputFile>..\..\x64bin\$(ProjectName)-$(TargetCPU)-$(Platform)-vc$(VSVer)-$(Configuration).exe</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-Dynamic|Win32'">
@@ -466,7 +469,7 @@
     <Link>
       <AdditionalDependencies Condition="'$(API_Family)'=='WinDesktop'">Iphlpapi.lib;dsound.lib;dxguid.lib;netapi32.lib;mswsock.lib;ws2_32.lib;odbc32.lib;odbccp32.lib;ole32.lib;user32.lib;gdi32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>..\..\bin\$(ProjectName)-$(TargetCPU)-$(Platform)-vc$(VSVer)-$(Configuration).exe</OutputFile>
+      <OutputFile>..\..\x86bin\$(ProjectName)-$(TargetCPU)-$(Platform)-vc$(VSVer)-$(Configuration).exe</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-Dynamic|ARM'">
@@ -489,6 +492,7 @@
     <Link>
       <AdditionalDependencies Condition="'$(API_Family)'=='WinDesktop'">Iphlpapi.lib;dsound.lib;dxguid.lib;netapi32.lib;mswsock.lib;ws2_32.lib;odbc32.lib;odbccp32.lib;ole32.lib;user32.lib;gdi32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <TargetMachine>MachineX64</TargetMachine>
+      <OutputFile>..\..\x64bin\$(ProjectName)-$(TargetCPU)-$(Platform)-vc$(VSVer)-$(Configuration).exe</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Dynamic|Win32'">
@@ -500,7 +504,7 @@
     <Link>
       <AdditionalDependencies Condition="'$(API_Family)'=='WinDesktop'">Iphlpapi.lib;dsound.lib;dxguid.lib;netapi32.lib;mswsock.lib;ws2_32.lib;odbc32.lib;odbccp32.lib;ole32.lib;user32.lib;gdi32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>..\..\bin\$(ProjectName)-$(TargetCPU)-$(Platform)-vc$(VSVer)-$(Configuration).exe</OutputFile>
+      <OutputFile>..\..\x86bin\$(ProjectName)-$(TargetCPU)-$(Platform)-vc$(VSVer)-$(Configuration).exe</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Dynamic|ARM'">
@@ -524,6 +528,7 @@
     <Link>
       <AdditionalDependencies Condition="'$(API_Family)'=='WinDesktop'">Iphlpapi.lib;dsound.lib;dxguid.lib;netapi32.lib;mswsock.lib;ws2_32.lib;odbc32.lib;odbccp32.lib;ole32.lib;user32.lib;gdi32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <TargetMachine>MachineX64</TargetMachine>
+      <OutputFile>..\..\x64bin\$(ProjectName)-$(TargetCPU)-$(Platform)-vc$(VSVer)-$(Configuration).exe</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-Static|Win32'">
@@ -535,7 +540,7 @@
     <Link>
       <AdditionalDependencies Condition="'$(API_Family)'=='WinDesktop'">Iphlpapi.lib;dsound.lib;dxguid.lib;netapi32.lib;mswsock.lib;ws2_32.lib;odbc32.lib;odbccp32.lib;ole32.lib;user32.lib;gdi32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>..\..\bin\$(ProjectName)-$(TargetCPU)-$(Platform)-vc$(VSVer)-$(Configuration).exe</OutputFile>
+      <OutputFile>..\..\x86bin\$(ProjectName)-$(TargetCPU)-$(Platform)-vc$(VSVer)-$(Configuration).exe</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-Static|ARM'">
@@ -558,6 +563,7 @@
     <Link>
       <AdditionalDependencies Condition="'$(API_Family)'=='WinDesktop'">Iphlpapi.lib;dsound.lib;dxguid.lib;netapi32.lib;mswsock.lib;ws2_32.lib;odbc32.lib;odbccp32.lib;ole32.lib;user32.lib;gdi32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <TargetMachine>MachineX64</TargetMachine>
+      <OutputFile>..\..\x64bin\$(ProjectName)-$(TargetCPU)-$(Platform)-vc$(VSVer)-$(Configuration).exe</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

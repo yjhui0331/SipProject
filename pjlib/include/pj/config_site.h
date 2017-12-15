@@ -18,9 +18,9 @@
 #define PJMEDIA_HAS_FFMPEG_VID_CODEC 1	
 #define PJMEDIA_HAS_FFMPEG_CODEC_H264 1	
 
-#define PJMEDIA_HAS_WEBRTC_AEC 1		//启用WEBRTC
-#define PJMEDIA_WEBRTC_AEC_USE_MOBILE 1 //启用WEBRTC
+//#define PJMEDIA_HAS_WEBRTC_AEC 1		//启用WEBRTC
+//#define PJMEDIA_WEBRTC_AEC_USE_MOBILE 1 //启用WEBRTC
 
-#define PJ_CONFIG_MAXIMUM_SPEED 1 //开启最佳性能
+//#define PJ_CONFIG_MAXIMUM_SPEED 1 //开启最佳性能
 
-#include <pj/config_site_sample.h> 
+//#include <pj/config_site_sample.h>

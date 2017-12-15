@@ -956,20 +956,21 @@ static void ui_add_account(pjsua_transport_config *rtp_cfg)
 
 static void ui_delete_buddy()
 {
-    char buf[128];
-    int i;
+	char buf[128];
+	int i;
 
-    if (!simple_input("Enter buddy ID to delete", buf, sizeof(buf)))
-	return;
+	if (!simple_input("Enter buddy ID to delete", buf, sizeof(buf)))
+		return;
 
-    i = my_atoi(buf) - 1;
+	i = my_atoi(buf) - 1;
 
-    if (!pjsua_buddy_is_valid(i)) {
-	printf("Invalid buddy id %d\n", i);
-    } else {
-	pjsua_buddy_del(i);
-	printf("Buddy %d deleted\n", i);
-    }
+	if (!pjsua_buddy_is_valid(i)) {
+		printf("Invalid buddy id %d\n", i);
+	}
+	else {
+		pjsua_buddy_del(i);
+		printf("Buddy %d deleted\n", i);
+	}
 }
 
 static void ui_delete_account()

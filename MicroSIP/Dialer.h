@@ -49,7 +49,6 @@ class Dialer :
     CButtonDialer m_ButtonDialerDelete;
     CButtonDialer m_ButtonDialerPlus;
     CButtonDialer m_ButtonDialerClear;
-	CButtonDialer m_ButtonDialerRedial;
 
 	CLevelsSliderCtrl m_SliderCtrlInput;
 	CLevelsSliderCtrl m_SliderCtrlOutput;
@@ -75,8 +74,8 @@ public:
 	~Dialer();
 	enum { IDD = IDD_DIALER };
 
-	void DTMF(CString digits);
 	void Input(CString digits, BOOL disableDTMF = FALSE);
+	void DTMF(CString digits, BOOL noLocalDTMF = FALSE);
 	void DialedClear();
 	void DialedLoad();
 	void DialedSave(CComboBox *combobox);
@@ -84,12 +83,9 @@ public:
 	void UpdateCallButton(BOOL forse = FALSE, int callsCount = -1);
 	void Action(DialerActions action);
 	void Clear(bool update=true);
-
 	void TimerVuMeter();
 
 protected:
-	CToolTipCtrl m_ToolTip;
-
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
 
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
@@ -101,7 +97,6 @@ protected:
 public:
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedCancel();
-
 	afx_msg void OnBnClickedCall();
 #ifdef _GLOBAL_VIDEO
 	afx_msg void OnBnClickedVideoCall();
@@ -110,8 +105,6 @@ public:
 	afx_msg void OnBnClickedHold();
 	afx_msg void OnBnClickedTransfer();
 	afx_msg void OnBnClickedEnd();
-	afx_msg void OnCbnEditchangeComboAddr();
-	afx_msg void OnCbnSelchangeComboAddr();
 
 	afx_msg void OnBnClickedPlusInput();
 	afx_msg void OnBnClickedMinusInput();
@@ -120,6 +113,8 @@ public:
 
 	afx_msg void OnBnClickedMuteOutput();
 	afx_msg void OnBnClickedMuteInput();
+	afx_msg void OnCbnEditchangeComboAddr();
+	afx_msg void OnCbnSelchangeComboAddr();
 	afx_msg void OnBnClickedKey1();
 	afx_msg void OnBnClickedKey2();
 	afx_msg void OnBnClickedKey3();
@@ -134,7 +129,6 @@ public:
 	afx_msg void OnBnClickedKeyGrate();
 	afx_msg void OnBnClickedKeyPlus();
 	afx_msg void OnBnClickedClear();
-	afx_msg void OnBnClickedRedial();
 	afx_msg void OnBnClickedDelete();
 	afx_msg void OnRButtonUp( UINT nFlags, CPoint pt );
 	afx_msg void OnLButtonUp( UINT nFlags, CPoint pt );

@@ -40,6 +40,7 @@ BEGIN
         MENUITEM "View Log File",               ID_LOG
         MENUITEM SEPARATOR
 		MENUITEM "Visit Website\tCtrl+W",      ID_WEBSITE
+		MENUITEM "Donate",      ID_DONATE
 		MENUITEM SEPARATOR
 		MENUITEM "Exit\tCtrl+X",                        ID_EXIT
     END

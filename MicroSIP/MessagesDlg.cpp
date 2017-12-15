@@ -594,7 +594,7 @@ pjsua_call_id MessagesDlg::CallMake(CString number, bool hasVideo, pj_status_t *
 	}
 #endif
 
-	msip_set_sound_device(msip_audio_output);
+	mainDlg->SetSoundDevice(mainDlg->audio_output);
 
 	pjsua_call_id call_id;
 
@@ -603,26 +603,31 @@ pjsua_call_id MessagesDlg::CallMake(CString number, bool hasVideo, pj_status_t *
 	call_setting.flag = 0;
 	call_setting.vid_cnt=hasVideo ? 1 : 0;
 
-	pjsua_msg_data msg_data;
-	pjsua_msg_data_init(&msg_data);
-
 	/* testing autoanswer
+	pjsua_msg_data msg_data;
 	pjsip_generic_string_hdr subject;
     pj_str_t hvalue, hname;
-	//hname = pj_str("X-AUTOANSWER");
-	//hvalue = pj_str("TRUE");
-	hname = pj_str("Call-Info");
-	hvalue = pj_str("answer-after=5");
+	pjsua_msg_data_init(&msg_data);
+	hname = pj_str("X-AUTOANSWER");
+	hvalue = pj_str("TRUE");
 	pjsip_generic_string_hdr_init2 (&subject, &hname, &hvalue);
     pj_list_push_back(&msg_data.hdr_list, &subject);
-	//*/
+
+	pj_status_t status = pjsua_call_make_call(
+		acc_id,
+		&pj_uri,
+		&call_setting,
+		NULL,
+		&msg_data,
+		&call_id);
+	*/
 
 	pj_status_t status = pjsua_call_make_call(
 		acc_id,
 		&pj_uri,
 		&call_setting,
 		user_data,
-		&msg_data,
+		NULL,
 		&call_id);
 	if (pStatus) {
 		*pStatus = status;

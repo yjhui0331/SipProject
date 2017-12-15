@@ -35,7 +35,7 @@
 //#pragma comment(lib, "libpjproject-i386-Win32-vc8-Debug-Static-Video.lib")
 #pragma comment(lib, "libpjproject-i386-Win32-vc14-Debug.lib")
 #else
-#pragma comment(lib, "libpjproject-i386-Win32-vc8-Debug-Static-NoVideo.lib")
+#pragma comment(lib, "libpjproject-i386-Win32-vc14-Debug-Static-NoVideo.lib")
 #endif
 #endif
 
@@ -94,6 +94,9 @@ public:
 	pjsua_transport_id transport_tcp;
 	pjsua_transport_id transport_tls;
 	pjsua_player_id player_id;
+	int audio_input;
+	int audio_output;
+	int audio_ring;
 
 	int iconStatusbar;
 
@@ -125,10 +128,10 @@ public:
 	void GotoTab(int i, CTabCtrl* tab = NULL);
 	void DialNumberFromCommandLine(CString number);
 	void DialNumber(CString params);
-	bool MakeCall(CString number, bool hasVideo = false);
-	bool MessagesOpen(CString number);
+	void MakeCall(CString number, bool hasVideo = false);
 	void AutoAnswer(pjsua_call_id call_id);
 	void PlayerPlay(CString filename, bool noLoop = false, bool inCall = false);
+	void SetSoundDevice(int outDev, bool forse = 0);
 	BOOL CopyStringToClipboard( IN const CString & str );
 	void OnTimerCall ();
 
@@ -178,7 +181,6 @@ protected:
 	afx_msg LRESULT onRefreshLevels(WPARAM wParam,LPARAM lParam);
 	afx_msg LRESULT onRegState2(WPARAM wParam,LPARAM lParam);
 	afx_msg LRESULT onCallState(WPARAM wParam,LPARAM lParam);
-	afx_msg LRESULT DeleteCallUserData(WPARAM wParam,LPARAM lParam);
 	afx_msg LRESULT onMWIInfo(WPARAM wParam,LPARAM lParam);
 	afx_msg LRESULT onCallMediaState(WPARAM, LPARAM);
 	afx_msg LRESULT onCallTransferStatus(WPARAM, LPARAM);

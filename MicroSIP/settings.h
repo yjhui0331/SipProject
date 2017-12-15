@@ -80,9 +80,6 @@ struct AccountSettings {
 	CString portKnockerHost;
 	CString portKnockerPorts;
 
-	CString lastCallNumber;
-	bool lastCallHasVideo;
-
 	CString updatesInterval;
 
 	int activeTab;

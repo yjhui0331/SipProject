@@ -52,7 +52,6 @@ void Dialer::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_KEY_0, m_ButtonDialer0);
 	DDX_Control(pDX, IDC_KEY_STAR, m_ButtonDialerStar);
     DDX_Control(pDX, IDC_KEY_GRATE, m_ButtonDialerGrate);
-	DDX_Control(pDX, IDC_REDIAL, m_ButtonDialerRedial);
     DDX_Control(pDX, IDC_DELETE, m_ButtonDialerDelete);
     DDX_Control(pDX, IDC_KEY_PLUS, m_ButtonDialerPlus);
     DDX_Control(pDX, IDC_CLEAR, m_ButtonDialerClear);
@@ -139,7 +138,6 @@ BOOL Dialer::OnInitDialog()
 	AutoMove(IDC_KEY_4,40,46,6,2);
 	AutoMove(IDC_KEY_7,40,49,6,2);
 	AutoMove(IDC_KEY_STAR,40,52,6,2);
-	AutoMove(IDC_REDIAL,40,55,6,2);
 	AutoMove(IDC_DELETE,40,55,6,2);
 
 	AutoMove(IDC_KEY_2,47,43,6,2);
@@ -156,6 +154,7 @@ BOOL Dialer::OnInitDialog()
 
 	AutoMove(IDC_NUMBER,40,60,20,0);
 
+
 #ifdef _GLOBAL_VIDEO
 	AutoMove(IDC_VIDEO_CALL,37,62,6,2);
 	AutoMove(IDC_CALL,44,62,12,2);
@@ -169,16 +168,17 @@ BOOL Dialer::OnInitDialog()
 	AutoMove(IDC_END,44,62,12,2);
 	AutoMove(IDC_TRANSFER,57,62,6,2);
 
+
 	DialedLoad();
+	
+	CComboBox *combobox= (CComboBox*)GetDlgItem(IDC_NUMBER);
+	combobox->SetWindowPos(NULL,0,0,combobox->GetDroppedWidth(),400,SWP_NOZORDER|SWP_NOMOVE);
 
 	LOGFONT lf;
 	font->GetLogFont(&lf);
 	lf.lfHeight = 22;
 	StringCchCopy(lf.lfFaceName,LF_FACESIZE,_T("Franklin Gothic Medium"));
 	m_font.CreateFontIndirect(&lf);
-
-	CComboBox *combobox= (CComboBox*)GetDlgItem(IDC_NUMBER);
-	combobox->SetWindowPos(NULL,0,0,combobox->GetDroppedWidth(),400,SWP_NOZORDER|SWP_NOMOVE);
 	combobox->SetFont(&m_font);
 
 	GetDlgItem(IDC_KEY_1)->SetFont(&m_font);
@@ -195,15 +195,7 @@ BOOL Dialer::OnInitDialog()
 	GetDlgItem(IDC_KEY_GRATE)->SetFont(&m_font);
 	GetDlgItem(IDC_KEY_PLUS)->SetFont(&m_font);
 	GetDlgItem(IDC_CLEAR)->SetFont(&m_font);
-	GetDlgItem(IDC_REDIAL)->SetFont(&m_font);
 	GetDlgItem(IDC_DELETE)->SetFont(&m_font);
-	
-	if (m_ToolTip.Create(this)) {
-		m_ToolTip.AddTool(&m_ButtonDialerRedial, _T("Redial"));
-		m_ToolTip.AddTool(&m_ButtonDialerDelete, _T("Backspace"));
-		m_ToolTip.AddTool(&m_ButtonDialerClear, _T("Clear"));
-		m_ToolTip.Activate(TRUE);
-	}
 
 	muteOutput = FALSE;
 	muteInput = FALSE;
@@ -233,7 +225,6 @@ BOOL Dialer::OnInitDialog()
 		AfxGetInstanceHandle(),
 		MAKEINTRESOURCE(IDI_MUTED_INPUT),
 		IMAGE_ICON, 0, 0, LR_SHARED );
-
 	m_hIconHold = (HICON)LoadImage(
 		AfxGetInstanceHandle(),
 		MAKEINTRESOURCE(IDI_HOLD),
@@ -241,7 +232,7 @@ BOOL Dialer::OnInitDialog()
 	((CButton*)GetDlgItem(IDC_HOLD))->SetIcon(m_hIconHold);
 	m_hIconTransfer = (HICON)LoadImage(
 		AfxGetInstanceHandle(),
-		MAKEINTRESOURCE(IDI_TRANSFER),
+		MAKEINTRESOURCE(IDI_DROPDOWN),
 		IMAGE_ICON, 0, 0, LR_SHARED );
 	((CButton*)GetDlgItem(IDC_TRANSFER))->SetIcon(m_hIconTransfer);
 #ifdef _GLOBAL_VIDEO
@@ -256,7 +247,7 @@ BOOL Dialer::OnInitDialog()
 		MAKEINTRESOURCE(IDI_MESSAGE),
 		IMAGE_ICON, 0, 0, LR_SHARED );
 	((CButton*)GetDlgItem(IDC_MESSAGE))->SetIcon(m_hIconMessage);
-
+	
 	return TRUE;
 }
 
@@ -283,6 +274,14 @@ void Dialer::PostNcDestroy()
 BEGIN_MESSAGE_MAP(Dialer, CBaseDialog)
 	ON_BN_CLICKED(IDOK, OnBnClickedOk)
 	ON_BN_CLICKED(IDCANCEL, OnBnClickedCancel)
+	ON_BN_CLICKED(IDC_CALL, OnBnClickedCall)
+#ifdef _GLOBAL_VIDEO
+	ON_BN_CLICKED(IDC_VIDEO_CALL, OnBnClickedVideoCall)
+#endif
+	ON_BN_CLICKED(IDC_MESSAGE, OnBnClickedMessage)
+	ON_BN_CLICKED(IDC_HOLD, OnBnClickedHold)
+	ON_BN_CLICKED(IDC_TRANSFER, OnBnClickedTransfer)
+	ON_BN_CLICKED(IDC_END, OnBnClickedEnd)
 	ON_BN_CLICKED(IDC_BUTTON_PLUS_INPUT, &Dialer::OnBnClickedPlusInput)
 	ON_BN_CLICKED(IDC_BUTTON_MINUS_INPUT, &Dialer::OnBnClickedMinusInput)
 	ON_BN_CLICKED(IDC_BUTTON_PLUS_OUTPUT, &Dialer::OnBnClickedPlusOutput)
@@ -293,18 +292,8 @@ BEGIN_MESSAGE_MAP(Dialer, CBaseDialog)
 	ON_WM_RBUTTONUP()
 	ON_WM_LBUTTONUP()
 	ON_WM_MOUSEMOVE()
-
-	ON_BN_CLICKED(IDC_CALL, OnBnClickedCall)
-#ifdef _GLOBAL_VIDEO
-	ON_BN_CLICKED(IDC_VIDEO_CALL, OnBnClickedVideoCall)
-#endif
-	ON_BN_CLICKED(IDC_MESSAGE, OnBnClickedMessage)
-	ON_BN_CLICKED(IDC_HOLD, OnBnClickedHold)
-	ON_BN_CLICKED(IDC_TRANSFER, OnBnClickedTransfer)
-	ON_BN_CLICKED(IDC_END, OnBnClickedEnd)
 	ON_CBN_EDITCHANGE(IDC_NUMBER, &Dialer::OnCbnEditchangeComboAddr)
 	ON_CBN_SELCHANGE(IDC_NUMBER, &Dialer::OnCbnSelchangeComboAddr)
-
 	ON_BN_CLICKED(IDC_KEY_1, &Dialer::OnBnClickedKey1)
 	ON_BN_CLICKED(IDC_KEY_2, &Dialer::OnBnClickedKey2)
 	ON_BN_CLICKED(IDC_KEY_3, &Dialer::OnBnClickedKey3)
@@ -317,10 +306,9 @@ BEGIN_MESSAGE_MAP(Dialer, CBaseDialog)
 	ON_BN_CLICKED(IDC_KEY_STAR, &Dialer::OnBnClickedKeyStar)
 	ON_BN_CLICKED(IDC_KEY_0, &Dialer::OnBnClickedKey0)
 	ON_BN_CLICKED(IDC_KEY_GRATE, &Dialer::OnBnClickedKeyGrate)
-	ON_BN_CLICKED(IDC_REDIAL, &Dialer::OnBnClickedRedial)
-	ON_BN_CLICKED(IDC_DELETE, &Dialer::OnBnClickedDelete)
 	ON_BN_CLICKED(IDC_KEY_PLUS, &Dialer::OnBnClickedKeyPlus)
 	ON_BN_CLICKED(IDC_CLEAR, &Dialer::OnBnClickedClear)
+	ON_BN_CLICKED(IDC_DELETE, &Dialer::OnBnClickedDelete)
 	ON_WM_VSCROLL()
 	ON_WM_CREATE()
 	ON_WM_DESTROY()
@@ -336,8 +324,6 @@ void Dialer::OnTimer (UINT TimerVal)
 
 BOOL Dialer::PreTranslateMessage(MSG* pMsg)
 {
-	m_ToolTip.RelayEvent(pMsg);
-
 	BOOL catched = FALSE;
 	BOOL isEdit = FALSE;
 	CEdit* edit = NULL;
@@ -485,13 +471,11 @@ BOOL Dialer::PreTranslateMessage(MSG* pMsg)
 				GotoDlgCtrl(GetDlgItem(IDC_NUMBER)); 
 				catched = TRUE;
 			}
-			if (edit) {
-				CString str;
-				edit->GetWindowText(str);
-				if (!str.IsEmpty()) {
-					Clear();
-					catched = TRUE;
-				}
+			CString str;
+			edit->GetWindowText(str);
+			if (!str.IsEmpty()) {
+				Clear();
+				catched = TRUE;
 			}
 		}
 	}
@@ -517,14 +501,115 @@ void Dialer::OnBnClickedCancel()
 	mainDlg->ShowWindow(SW_HIDE);
 }
 
-void Dialer::DTMF(CString digits)
+void Dialer::Action(DialerActions action)
 {
-	pjsua_call_id call_id = PJSUA_INVALID_ID;
+	CString number;
+	CComboBox *combobox= (CComboBox*)GetDlgItem(IDC_NUMBER);
+	combobox->GetWindowText(number);
+	if (!number.IsEmpty()) {
+		number.Trim();
+		CString commands;
+		CString numberFormated = FormatNumber(number, &commands);
+		pj_status_t pj_status = pjsua_verify_sip_url(StrToPj(numberFormated));
+		if (pj_status==PJ_SUCCESS) {
+			int pos = combobox->FindStringExact(-1,number);
+			if (pos==CB_ERR || pos>0) {
+				if (pos>0) {
+					combobox->DeleteString(pos);
+				} else if (combobox->GetCount()>=10)
+				{
+					combobox->DeleteString(combobox->GetCount()-1);
+				}
+				combobox->InsertString(0,number);
+				combobox->SetCurSel(0);
+			}
+			DialedSave(combobox);
+			if (!accountSettings.singleMode) {
+				Clear();
+			}
+			mainDlg->messagesDlg->AddTab(numberFormated, _T(""), TRUE, NULL, accountSettings.singleMode && action != ACTION_MESSAGE);
+			if (action!=ACTION_MESSAGE) {
+				mainDlg->messagesDlg->Call(action==ACTION_VIDEO_CALL,commands);
+			}
+		} else {
+			ShowErrorMessage(pj_status);
+		}
+	}
+}
+
+void Dialer::OnBnClickedCall()
+{
+	Action(ACTION_CALL);
+}
+
+#ifdef _GLOBAL_VIDEO
+void Dialer::OnBnClickedVideoCall()
+{
+	Action(ACTION_VIDEO_CALL);
+}
+#endif
+
+void Dialer::OnBnClickedMessage()
+{
+	Action(ACTION_MESSAGE);
+}
+
+void Dialer::OnBnClickedHold()
+{
+	mainDlg->messagesDlg->OnBnClickedHold();
+}
+
+void Dialer::OnBnClickedTransfer()
+{
+	if (!mainDlg->transferDlg) {
+		mainDlg->transferDlg = new Transfer(this);
+	}
+	mainDlg->transferDlg->SetAction(MSIP_ACTION_TRANSFER);
+	mainDlg->transferDlg->SetForegroundWindow();
+}
+
+void Dialer::OnBnClickedEnd()
+{
 	MessagesContact*  messagesContact = mainDlg->messagesDlg->GetMessageContact();
 	if (messagesContact && messagesContact->callId != -1 ) {
-		call_id = messagesContact->callId;
+		msip_call_end(messagesContact->callId);
+	} else {
+		call_hangup_all_noincoming();
 	}
-	msip_call_dial_dtmf(call_id, digits);
+}
+
+void Dialer::DTMF(CString digits, BOOL noLocalDTMF)
+{
+	BOOL simulate = TRUE;
+	MessagesContact*  messagesContact = mainDlg->messagesDlg->GetMessageContact();
+	if (messagesContact && messagesContact->callId != -1 )
+	{
+		pjsua_call_info call_info;
+		pjsua_call_get_info(messagesContact->callId, &call_info);
+		if (call_info.media_status == PJSUA_CALL_MEDIA_ACTIVE)
+		{
+			pj_str_t pj_digits = StrToPjStr ( digits );
+			if (accountSettings.DTMFMethod == 1) {
+				// in-band
+				simulate = !call_play_digit(messagesContact->callId, StrToPj(digits));
+			} else if (accountSettings.DTMFMethod == 2) {
+				// RFC2833
+				pjsua_call_dial_dtmf(messagesContact->callId, &pj_digits);
+			} else if (accountSettings.DTMFMethod == 3) {
+				// sip-info
+				msip_call_send_dtmf_info(messagesContact->callId, pj_digits);
+			} else {
+				// auto
+				if (pjsua_call_dial_dtmf(messagesContact->callId, &pj_digits) != PJ_SUCCESS) {
+					simulate = !call_play_digit(messagesContact->callId, StrToPj(digits));
+				}
+			}
+		}
+	}
+	if (simulate && accountSettings.localDTMF && !noLocalDTMF) {
+		mainDlg->SetSoundDevice(mainDlg->audio_output);
+		call_play_digit(-1, StrToPj(digits));
+	}
 }
 
 void Dialer::Input(CString digits, BOOL disableDTMF)
@@ -581,175 +666,6 @@ void Dialer::DialedSave(CComboBox *combobox)
 	}
 }
 
-void Dialer::SetNumber(CString  number, int callsCount)
-{
-	CComboBox *combobox= (CComboBox*)GetDlgItem(IDC_NUMBER);
-	CString old;
-	combobox->GetWindowText(old);
-	if (old.IsEmpty() || number.Find(old)!=0) {
-		combobox->SetWindowText(number);
-	}
-	UpdateCallButton(0, callsCount);
-}
-
-void Dialer::UpdateCallButton(BOOL forse, int callsCount)
-{
-	int len;
-	if (!forse)	{
-		CComboBox *combobox= (CComboBox*)GetDlgItem(IDC_NUMBER);
-		len = combobox->GetWindowTextLength();
-	} else {
-		len = 1;
-	}
-	CButton *button = (CButton *)GetDlgItem(IDC_CALL);
-	bool state = false;
-	if (accountSettings.singleMode)	{
-		if (callsCount == -1) {
-			callsCount = call_get_count_noincoming();
-		}
-		if (callsCount) {
-			if (!GetDlgItem(IDC_END)->IsWindowVisible()) {
-				button->ShowWindow(SW_HIDE);
-#ifdef _GLOBAL_VIDEO
-				GetDlgItem(IDC_VIDEO_CALL)->ShowWindow(SW_HIDE);
-#endif
-				GetDlgItem(IDC_MESSAGE)->ShowWindow(SW_HIDE);
-				GetDlgItem(IDC_HOLD)->ShowWindow(SW_SHOW);
-				GetDlgItem(IDC_TRANSFER)->ShowWindow(SW_SHOW);
-				GetDlgItem(IDC_END)->ShowWindow(SW_SHOW);
-				GotoDlgCtrl(GetDlgItem(IDC_END));
-			}
-		} else {
-			if (GetDlgItem(IDC_END)->IsWindowVisible()) {
-				GetDlgItem(IDC_HOLD)->ShowWindow(SW_HIDE);
-				GetDlgItem(IDC_TRANSFER)->ShowWindow(SW_HIDE);
-				GetDlgItem(IDC_END)->ShowWindow(SW_HIDE);
-				button->ShowWindow(SW_SHOW);
-#ifdef _GLOBAL_VIDEO
-				GetDlgItem(IDC_VIDEO_CALL)->ShowWindow(SW_SHOW);
-#endif
-				GetDlgItem(IDC_MESSAGE)->ShowWindow(SW_SHOW);
-			}
-		}
-		state = callsCount||len?true:false;
-
-	} else {
-		state = len?true:false;
-	}
-	if (state==false && !GetFocus()) {
-		GotoDlgCtrl(GetDlgItem(IDC_NUMBER));
-	}
-	button->EnableWindow(state);
-
-#ifdef _GLOBAL_VIDEO
-	GetDlgItem(IDC_VIDEO_CALL)->EnableWindow(state);
-#endif
-	GetDlgItem(IDC_MESSAGE)->EnableWindow(state);
-	CButton *buttonRedial = (CButton *)GetDlgItem(IDC_REDIAL);
-	CButton *buttonDelete = (CButton *)GetDlgItem(IDC_DELETE);
-	if (!state) {
-		buttonDelete->ShowWindow(SW_HIDE);
-		buttonRedial->ShowWindow(SW_SHOW);
-	} else {
-		buttonRedial->ShowWindow(SW_HIDE);
-		buttonDelete->ShowWindow(SW_SHOW);
-	}
-}
-
-void Dialer::Action(DialerActions action)
-{
-	CString number;
-	CComboBox *combobox= (CComboBox*)GetDlgItem(IDC_NUMBER);
-	combobox->GetWindowText(number);
-	number.Trim();
-	if (!number.IsEmpty()) {
-		bool res = false;
-		if (action!=ACTION_MESSAGE) {
-			res = mainDlg->MakeCall(number, action==ACTION_VIDEO_CALL);
-		} else {
-			res = mainDlg->MessagesOpen(number);
-		}
-		if (res) {
-			//-- save dialed in combobox
-			int pos = combobox->FindStringExact(-1,number);
-			if (pos==CB_ERR || pos>0) {
-				if (pos>0) {
-					combobox->DeleteString(pos);
-				} else if (combobox->GetCount()>=10)
-				{
-					combobox->DeleteString(combobox->GetCount()-1);
-				}
-				combobox->InsertString(0,number);
-				combobox->SetCurSel(0);
-			}
-			DialedSave(combobox);
-			if (!accountSettings.singleMode) {
-				Clear();
-			}
-			//-- end
-		}
-	}
-}
-
-void Dialer::Clear(bool update)
-{
-	CComboBox *combobox= (CComboBox*)GetDlgItem(IDC_NUMBER);
-	combobox->SetCurSel(-1);
-	if (update) {
-		UpdateCallButton();
-	}
-}
-
-void Dialer::OnBnClickedCall()
-{
-	Action(ACTION_CALL);
-}
-
-#ifdef _GLOBAL_VIDEO
-void Dialer::OnBnClickedVideoCall()
-{
-	Action(ACTION_VIDEO_CALL);
-}
-#endif
-
-void Dialer::OnBnClickedMessage()
-{
-	Action(ACTION_MESSAGE);
-}
-
-void Dialer::OnBnClickedHold()
-{
-	mainDlg->messagesDlg->OnBnClickedHold();
-}
-
-void Dialer::OnBnClickedTransfer()
-{
-	if (!mainDlg->transferDlg) {
-		mainDlg->transferDlg = new Transfer(this);
-	}
-	mainDlg->transferDlg->SetAction(MSIP_ACTION_TRANSFER);
-	mainDlg->transferDlg->SetForegroundWindow();
-}
-
-void Dialer::OnBnClickedEnd()
-{
-	MessagesContact*  messagesContact = mainDlg->messagesDlg->GetMessageContact();
-	if (messagesContact && messagesContact->callId != -1 ) {
-		msip_call_end(messagesContact->callId);
-	} else {
-		call_hangup_all_noincoming();
-	}
-}
-
-void Dialer::OnCbnEditchangeComboAddr()
-{
-	UpdateCallButton();
-}
-
-void Dialer::OnCbnSelchangeComboAddr()
-{	
-	UpdateCallButton(TRUE);
-}
 
 void Dialer::OnBnClickedKey1()
 {
@@ -811,10 +727,22 @@ void Dialer::OnBnClickedKeyGrate()
 	Input(_T("#"));
 }
 
-void Dialer::OnBnClickedRedial()
+void Dialer::OnBnClickedKeyPlus()
 {
-	if (!accountSettings.lastCallNumber.IsEmpty()) {
-		mainDlg->MakeCall(accountSettings.lastCallNumber, accountSettings.lastCallHasVideo);
+	Input(_T("+"), TRUE);
+}
+
+void Dialer::OnBnClickedClear()
+{
+	Clear();
+}
+
+void Dialer::Clear(bool update)
+{
+	CComboBox *combobox= (CComboBox*)GetDlgItem(IDC_NUMBER);
+	combobox->SetCurSel(-1);
+	if (update) {
+		UpdateCallButton();
 	}
 }
 
@@ -829,14 +757,80 @@ void Dialer::OnBnClickedDelete()
 	}
 }
 
-void Dialer::OnBnClickedKeyPlus()
+void Dialer::UpdateCallButton(BOOL forse, int callsCount)
 {
-	Input(_T("+"), TRUE);
+	int len;
+	if (!forse)	{
+		CComboBox *combobox= (CComboBox*)GetDlgItem(IDC_NUMBER);
+		len = combobox->GetWindowTextLength();
+	} else {
+		len = 1;
+	}
+	CButton *button = (CButton *)GetDlgItem(IDC_CALL);
+	bool state = false;
+	if (accountSettings.singleMode)	{
+		if (callsCount == -1) {
+			callsCount = call_get_count_noincoming();
+		}
+		if (callsCount) {
+			if (!GetDlgItem(IDC_END)->IsWindowVisible()) {
+				button->ShowWindow(SW_HIDE);
+#ifdef _GLOBAL_VIDEO
+				GetDlgItem(IDC_VIDEO_CALL)->ShowWindow(SW_HIDE);
+#endif
+				GetDlgItem(IDC_MESSAGE)->ShowWindow(SW_HIDE);
+				GetDlgItem(IDC_HOLD)->ShowWindow(SW_SHOW);
+				GetDlgItem(IDC_TRANSFER)->ShowWindow(SW_SHOW);
+				GetDlgItem(IDC_END)->ShowWindow(SW_SHOW);
+				GotoDlgCtrl(GetDlgItem(IDC_END));
+			}
+		} else {
+			if (GetDlgItem(IDC_END)->IsWindowVisible()) {
+				GetDlgItem(IDC_HOLD)->ShowWindow(SW_HIDE);
+				GetDlgItem(IDC_TRANSFER)->ShowWindow(SW_HIDE);
+				GetDlgItem(IDC_END)->ShowWindow(SW_HIDE);
+				button->ShowWindow(SW_SHOW);
+#ifdef _GLOBAL_VIDEO
+				GetDlgItem(IDC_VIDEO_CALL)->ShowWindow(SW_SHOW);
+#endif
+				GetDlgItem(IDC_MESSAGE)->ShowWindow(SW_SHOW);
+			}
+		}
+		state = callsCount||len?true:false;
+
+	} else {
+		state = len?true:false;
+	}
+	if (state==false && !GetFocus()) {
+		GotoDlgCtrl(GetDlgItem(IDC_NUMBER));
+	}
+	button->EnableWindow(state);
+
+#ifdef _GLOBAL_VIDEO
+				GetDlgItem(IDC_VIDEO_CALL)->EnableWindow(state);
+#endif
+				GetDlgItem(IDC_MESSAGE)->EnableWindow(state);
 }
 
-void Dialer::OnBnClickedClear()
+void Dialer::SetNumber(CString  number, int callsCount)
 {
-	Clear();
+	CComboBox *combobox= (CComboBox*)GetDlgItem(IDC_NUMBER);
+	CString old;
+	combobox->GetWindowText(old);
+	if (old.IsEmpty() || number.Find(old)!=0) {
+		combobox->SetWindowText(number);
+	}
+	UpdateCallButton(0, callsCount);
+}
+
+void Dialer::OnCbnEditchangeComboAddr()
+{
+	UpdateCallButton();
+}
+
+void Dialer::OnCbnSelchangeComboAddr()
+{	
+	UpdateCallButton(TRUE);
 }
 
 void Dialer::OnLButtonUp( UINT nFlags, CPoint pt ) 
@@ -1016,10 +1010,11 @@ void Dialer::OnBnClickedShortcut(UINT nID)
 			mainDlg->MakeCall(shortcut.number, true);
 			break;
 		case MSIP_SHORTCUT_MESSAGE:
-			mainDlg->MessagesOpen(shortcut.number);
+			mainDlg->messagesDlg->AddTab(FormatNumber(shortcut.number), _T(""), TRUE, NULL);
 			break;
 		case MSIP_SHORTCUT_DTMF:
 			DTMF(shortcut.number);
 			break;
 	}
 }
+

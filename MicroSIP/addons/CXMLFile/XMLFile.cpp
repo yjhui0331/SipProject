@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "XMLFile.h"
 #include "io.h"
+//#include <stdio.h>
 
 
 CXMLFile::CXMLFile(void)
@@ -44,6 +45,7 @@ BOOL CXMLFile::LoadFromFile(LPTSTR lpszXMLFilePath)
 
 	// Try to open XML file
 	FILE* xmlFile = _tfopen(lpszXMLFilePath, _T("r"));
+	//FILE* xmlFile1 = fopen(lpszXMLFilePath, _T("r"));
 	if (xmlFile != NULL)
 	{
 		// Get file length

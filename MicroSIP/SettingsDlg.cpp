@@ -158,8 +158,8 @@ BOOL SettingsDlg::OnInitDialog()
 
 	pjsua_codec_info codec_info[64];
 	CListBox *listbox;
-	listbox = (CListBox*)GetDlgItem(IDC_AUDIO_CODECS_ALL);
 	CListBox *listbox2;
+	listbox = (CListBox*)GetDlgItem(IDC_AUDIO_CODECS_ALL);
 	listbox2 = (CListBox*)GetDlgItem(IDC_AUDIO_CODECS);
 
 	CList<CString> disabledCodecsList;
@@ -428,7 +428,7 @@ void SettingsDlg::OnBnClickedOk()
 	accountSettings.disableH264=((CButton*)GetDlgItem(IDC_DISABLE_H264))->GetCheck();
 	accountSettings.disableH263=((CButton*)GetDlgItem(IDC_DISABLE_H263))->GetCheck();
 	accountSettings.disableVP8=((CButton*)GetDlgItem(IDC_DISABLE_VP8))->GetCheck();
-	GetDlgItem(IDC_BITRATE_264)->GetWindowText(accountSettings.bitrateH264);
+	GetDlgItem(IDC_BITRATE_VP8)->GetWindowText(accountSettings.bitrateVP8);
 	if (!atoi(CStringA(accountSettings.bitrateH264))) {
 		accountSettings.bitrateH264=_T("");
 	}
@@ -515,8 +515,8 @@ void SettingsDlg::OnDeltaposSpinModify(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMUPDOWN pNMUpDown = reinterpret_cast<LPNMUPDOWN>(pNMHDR);
 	CListBox *listbox;
-	listbox = (CListBox*)GetDlgItem(IDC_AUDIO_CODECS_ALL);
 	CListBox *listbox2;
+	listbox = (CListBox*)GetDlgItem(IDC_AUDIO_CODECS_ALL);
 	listbox2 = (CListBox*)GetDlgItem(IDC_AUDIO_CODECS);
 	if (pNMUpDown->iDelta == -1) {
 		//add
@@ -543,6 +543,7 @@ void SettingsDlg::OnDeltaposSpinModify(NMHDR *pNMHDR, LRESULT *pResult)
 	}
 	*pResult = 0;
 }
+
 void SettingsDlg::OnDeltaposSpinOrder(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMUPDOWN pNMUpDown = reinterpret_cast<LPNMUPDOWN>(pNMHDR);

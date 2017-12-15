@@ -40,8 +40,6 @@ CButtonDialer::CButtonDialer()
 	m_map.SetAt(_T("8"),_T("TUV"));
 	m_map.SetAt(_T("9"),_T("WXYZ"));
 	m_map.SetAt(_T("0"),_T(""));
-	m_map.SetAt(_T("*"),_T(""));
-	m_map.SetAt(_T("#"),_T(""));
 }
 
 CButtonDialer::~CButtonDialer()

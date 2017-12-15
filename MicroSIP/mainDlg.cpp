@@ -250,6 +250,7 @@ static void on_call_state(pjsua_call_id call_id, pjsip_event *e)
 				user_data->auto_hangup_timer.id = PJSUA_INVALID_ID;
 			}
 			pjsua_call_set_user_data(call_info->id, NULL);
+			delete user_data;
 		}
 		// --
 		if (call_info->last_status == 200) {
@@ -271,16 +272,6 @@ static void on_call_state(pjsua_call_id call_id, pjsip_event *e)
 	}
 
 	PostMessage(mainDlg->m_hWnd, UM_ON_CALL_STATE, (WPARAM) call_info, (LPARAM) str);
-	if (call_info->state == PJSIP_INV_STATE_DISCONNECTED && user_data) {
-		PostMessage(mainDlg->m_hWnd, UM_DELETE_CALL_USER_DATA, (WPARAM) user_data, 0);
-	}
-}
-
-LRESULT CmainDlg::DeleteCallUserData(WPARAM wParam,LPARAM lParam)
-{
-	call_user_data *user_data= (call_user_data *)wParam;
-	delete user_data;
-	return 0;
 }
 
 LRESULT CmainDlg::onCallState(WPARAM wParam,LPARAM lParam)
@@ -304,11 +295,11 @@ LRESULT CmainDlg::onCallState(WPARAM wParam,LPARAM lParam)
 			ShellExecute(NULL, NULL, accountSettings.cmdCallStart, sipuri.user, NULL, SW_HIDE);
 		}
 		call_user_data *user_data = (call_user_data *) pjsua_call_get_user_data(call_info->id);
-		if (user_data && !user_data->commands.IsEmpty()) {
-			SetTimer((UINT_PTR)call_info->id, 1000, (TIMERPROC)DTMFQueueTimerHandler);
+		if (!user_data->commands.IsEmpty()) {
+			pageDialer->DTMF(user_data->commands);
 		}
 	} else if (call_info->state == PJSIP_INV_STATE_DISCONNECTED) {
-		destroyDTMFPlayerTimerHandler(NULL,NULL,NULL,NULL);
+		destroyDTMFPlayer(NULL,NULL,NULL,NULL);
 		if (call_info->last_status == 200) {
 			onPlayerPlay(MSIP_SOUND_HANGUP, 0);
 		} else {
@@ -541,45 +532,7 @@ LRESULT CmainDlg::onCallMediaState(WPARAM wParam,LPARAM lParam)
 	}
 
 	delete call_info;
-
 	return 0;
-}
-
-static void on_call_media_event(pjsua_call_id call_id,
-                                unsigned med_idx,
-                                pjmedia_event *event)
-{
-	char event_name[5];
-
-	PJ_LOG(5,(THIS_FILE, "Event %s",
-		pjmedia_fourcc_name(event->type, event_name)));
-
-//#if PJSUA_HAS_VIDEO
-	//if (event->type == PJMEDIA_EVENT_FMT_CHANGED) {
-	//	pjsua_call_info ci;
-	//	pjsua_call_get_info(call_id, &ci);
-	//	if ((ci.media[med_idx].type == PJMEDIA_TYPE_VIDEO) &&
-	//		(ci.media[med_idx].dir & PJMEDIA_DIR_DECODING)) {
-	//		pjsua_vid_win_id wid;
-	//		pjmedia_rect_size size;
-	//		pjsua_vid_win_info win_info;
-
-	//		wid = ci.media[med_idx].stream.vid.win_in;
-	//		pjsua_vid_win_get_info(wid, &win_info);
-
-	//		size = event->data.fmt_changed.new_fmt.det.vid.size;
-	//		if (size.w != win_info.size.w || size.h != win_info.size.h) {
-	//			pjsua_vid_win_set_size(wid, &size);
-	//			/* Re-arrange video windows */
-	//			arrange_window(PJSUA_INVALID_ID);
-	//		}
-	//	}
-	//}
-//#else
-//	PJ_UNUSED_ARG(call_id);
-//	PJ_UNUSED_ARG(med_idx);
-//	PJ_UNUSED_ARG(event);
-//#endif
 }
 
 static void on_incoming_call(pjsua_acc_id acc, pjsua_call_id call_id,
@@ -689,9 +642,6 @@ static void on_incoming_call(pjsua_acc_id acc, pjsua_call_id call_id,
 			}
 		}
 
-		accountSettings.lastCallNumber = sipuri.user;
-		accountSettings.lastCallHasVideo = false;
-
 		if (!accountSettings.cmdIncomingCall.IsEmpty() ) {
 			mainDlg->SendMessage(UM_SHELL_EXECUTE, (WPARAM)accountSettings.cmdIncomingCall.GetBuffer(), (LPARAM)sipuri.user.GetBuffer());
 		}
@@ -709,7 +659,6 @@ static void on_incoming_call(pjsua_acc_id acc, pjsua_call_id call_id,
 				}
 			}
 		}
-		bool noRingDialog = false;
 		if (autoAnswer==2) {
 			pjsip_generic_string_hdr *hsr = NULL;
 			const pj_str_t header = pj_str("Call-Info");
@@ -735,7 +684,6 @@ static void on_incoming_call(pjsua_acc_id acc, pjsua_call_id call_id,
 								autoAnswer = 1;
 							} else if (autoAnswerTimeout>0) {
 								if (mainDlg->autoAnswerCallId==PJSUA_INVALID_ID) {
-									noRingDialog = true;
 									mainDlg->autoAnswerCallId = call_id;
 									mainDlg->SetTimer(IDT_TIMER_AUTOANSWER,autoAnswerTimeout*1000,NULL);
 								}
@@ -750,17 +698,15 @@ static void on_incoming_call(pjsua_acc_id acc, pjsua_call_id call_id,
 			if (accountSettings.hidden) {
 				mainDlg->PostMessage(UM_CALL_HANGUP, (WPARAM)call_id, NULL);
 			} else {
-				if (!noRingDialog) {
-					//--
-					const pj_str_t headerUserAgent = {"User-Agent",10};
-					pjsip_generic_string_hdr *hsr = NULL;
-					hsr = (pjsip_generic_string_hdr*) pjsip_msg_find_hdr_by_name ( rdata->msg_info.msg, &headerUserAgent, NULL);
-					if (hsr) {
-						user_data->userAgent = PjToStr(&hsr->hvalue, true);
-					}
-					//--
-					mainDlg->SendMessage(UM_CREATE_RINGING, (WPARAM)&call_info, (LPARAM)user_data);
+				//--
+				const pj_str_t headerUserAgent = {"User-Agent",10};
+				pjsip_generic_string_hdr *hsr = NULL;
+				hsr = (pjsip_generic_string_hdr*) pjsip_msg_find_hdr_by_name ( rdata->msg_info.msg, &headerUserAgent, NULL);
+				if (hsr) {
+					user_data->userAgent = PjToStr(&hsr->hvalue, true);
 				}
+				//--
+				mainDlg->SendMessage(UM_CREATE_RINGING, (WPARAM)&call_info, (LPARAM)user_data);
 				pjsua_call_answer(call_id, 180, NULL, NULL);
 				if (call_get_count_noincoming()) {
 					playBeep = TRUE;
@@ -1231,7 +1177,6 @@ BEGIN_MESSAGE_MAP(CmainDlg, CBaseDialog)
 	ON_MESSAGE(UM_REFRESH_LEVELS,onRefreshLevels)
 	ON_MESSAGE(UM_ON_REG_STATE2,onRegState2)
 	ON_MESSAGE(UM_ON_CALL_STATE,onCallState)
-	ON_MESSAGE(UM_DELETE_CALL_USER_DATA,DeleteCallUserData)
 	ON_MESSAGE(UM_ON_MWI_INFO,onMWIInfo)
 	ON_MESSAGE(UM_ON_CALL_MEDIA_STATE,onCallMediaState)
 	ON_MESSAGE(UM_ON_CALL_TRANSFER_STATUS,onCallTransferStatus)
@@ -1240,7 +1185,7 @@ BEGIN_MESSAGE_MAP(CmainDlg, CBaseDialog)
 	ON_MESSAGE(UM_ON_PAGER,onPager)
 	ON_MESSAGE(UM_ON_PAGER_STATUS,onPagerStatus)
 	ON_MESSAGE(UM_ON_BUDDY_STATE,onBuddyState)
-	ON_MESSAGE(UM_USERS_DIRECTORY,onUsersDirectoryLoaded)
+	//ON_MESSAGE(UM_USERS_DIRECTORY,onUsersDirectoryLoaded)
 	ON_MESSAGE(UM_SHELL_EXECUTE,onShellExecute)
 	ON_MESSAGE(WM_POWERBROADCAST,onPowerBroadcast)
 	ON_MESSAGE(WM_COPYDATA,onCopyData)
@@ -1307,7 +1252,6 @@ opus/48000/1;Opus 48 kHz;\
 PCMA/8000/1;G.711 A-law;\
 PCMU/8000/1;G.711 u-law;\
 G722/16000/1;G.722 16 kHz;\
-G723/8000/1;G.723 8 kHz;\
 G729/8000/1;G.729 8 kHz;\
 GSM/8000/1;GSM 8 kHz;\
 AMR/8000/1;AMR 8 kHz;\
@@ -2037,7 +1981,7 @@ void CmainDlg::OnTimer (UINT TimerVal)
 			if (snd_is_active) {
 				int in,out;
 				if (pjsua_get_snd_dev(&in,&out)==PJ_SUCCESS) {
-					is_ring = (out == msip_audio_ring);
+					is_ring = (out == audio_ring);
 				} else {
 					is_ring = false;
 				}
@@ -2049,7 +1993,7 @@ void CmainDlg::OnTimer (UINT TimerVal)
 			pjmedia_vid_dev_refresh();
 #endif
 			if (snd_is_active) {
-				msip_set_sound_device(is_ring?msip_audio_ring:msip_audio_output,true);
+				SetSoundDevice(is_ring?audio_ring:audio_output,true);
 			}
 		} else {
 			PJ_LOG(3, (THIS_FILE, "Cancel refresh devices"));
@@ -2135,6 +2079,8 @@ void CmainDlg::PJCreate()
 		return;
 	}
 
+	ua_cfg.max_calls = 16;
+
 	// Initialize configs with default settings.
 	pjsua_config_default(&ua_cfg);
 	pjsua_media_config_default(&media_cfg);
@@ -2153,7 +2099,6 @@ void CmainDlg::PJCreate()
 	ua_cfg.cb.on_call_tsx_state=&on_call_tsx_state;
 		
 	ua_cfg.cb.on_call_media_state = &on_call_media_state;
-	ua_cfg.cb.on_call_media_event = &on_call_media_event;
 	ua_cfg.cb.on_incoming_call = &on_incoming_call;
 	ua_cfg.cb.on_nat_detect= &on_nat_detect;
 	ua_cfg.cb.on_buddy_state = &on_buddy_state;
@@ -2296,33 +2241,29 @@ TODO: accountSettings.account: public_addr
 		const pj_str_t codec_id = {"H264", 4};
 		pjmedia_vid_codec_param param;
 		pjsua_vid_codec_get_param(&codec_id, &param);
-		/*
 		if (atoi(CStringA(accountSettings.bitrateH264))) {
 			bitrate = 1000 * atoi(CStringA(accountSettings.bitrateH264));
 			param.enc_fmt.det.vid.avg_bps = bitrate;
 			param.enc_fmt.det.vid.max_bps = bitrate;
 		}
-		*/
-
-		param.enc_fmt.det.vid.avg_bps = 512000;
-		param.enc_fmt.det.vid.max_bps = 1024000;
-		
-		param.enc_fmt.det.vid.size.w = 1280;
-		param.enc_fmt.det.vid.size.h = 720;
-		param.enc_fmt.det.vid.fps.num = 25;
+		/*
+		param.enc_fmt.det.vid.size.w = 140;
+		param.enc_fmt.det.vid.size.h = 80;
+		param.enc_fmt.det.vid.fps.num = 30;
 		param.enc_fmt.det.vid.fps.denum = 1;
-		param.dec_fmt.det.vid.size.w = 1280;
-		param.dec_fmt.det.vid.size.h = 720;
+		param.dec_fmt.det.vid.size.w = 640;
+		param.dec_fmt.det.vid.size.h = 480;
 		param.dec_fmt.det.vid.fps.num = 30;
 		param.dec_fmt.det.vid.fps.denum = 1;
-		
+		*/
+		/*
 		// Defaut (level 1e, 30):
 		param.dec_fmtp.cnt = 2;
 		param.dec_fmtp.param[0].name = pj_str("profile-level-id");
-		param.dec_fmtp.param[0].val = pj_str("42e033");
+		param.dec_fmtp.param[0].val = pj_str("42e01e");
 		param.dec_fmtp.param[1].name = pj_str("packetization-mode");
 		param.dec_fmtp.param[1].val = pj_str("1");
-		
+		//*/
 		pjsua_vid_codec_set_param(&codec_id, &param);
 	}
 	if (accountSettings.disableH263) {
@@ -2422,9 +2363,9 @@ TODO: accountSettings.account: public_addr
 
 void CmainDlg::UpdateSoundDevicesIds()
 {
-	msip_audio_input=-1;
-	msip_audio_output=-2;
-	msip_audio_ring=-2;
+	audio_input=-1;
+	audio_output=-2;
+	audio_ring=-2;
 
 	unsigned count = 128;
 	pjmedia_aud_dev_info aud_dev_info[128];
@@ -2433,14 +2374,14 @@ void CmainDlg::UpdateSoundDevicesIds()
 	{
 		CString audDevName(aud_dev_info[i].name);
 		if (aud_dev_info[i].input_count && !accountSettings.audioInputDevice.Compare(audDevName)) {
-			msip_audio_input = i;
+			audio_input = i;
 		}
 		if (aud_dev_info[i].output_count) {
 			if (!accountSettings.audioOutputDevice.Compare(audDevName)) {
-				msip_audio_output = i;
+				audio_output = i;
 			}
 			if (!accountSettings.audioRingDevice.Compare(audDevName)) {
-				msip_audio_ring = i;
+				audio_ring = i;
 			}
 		}
 	}
@@ -2581,7 +2522,7 @@ void CmainDlg::PJAccountAdd()
 	acc_cfg.cred_info[0].realm = pj_str("*");
 	acc_cfg.cred_info[0].scheme = pj_str("Digest");
 	acc_cfg.cred_info[0].data_type = PJSIP_CRED_DATA_PLAIN_PASSWD;
-	acc_cfg.cred_info[0].data = StrToPjStr( /*accountSettings.account.password*/_T("5011") );
+	acc_cfg.cred_info[0].data = StrToPjStr( accountSettings.account.password );
 
 	CString regURI;
 	if (accountSettings.account.server.IsEmpty()) {
@@ -2916,39 +2857,23 @@ void CmainDlg::DialNumber(CString params)
 	}
 }
 
-bool CmainDlg::MakeCall(CString number, bool hasVideo)
+void CmainDlg::MakeCall(CString number, bool hasVideo)
 {
 	if (accountSettings.singleMode && call_get_count_noincoming()) {
-		GotoTab(0);
-	} else {
-		accountSettings.lastCallNumber = number;
-		accountSettings.lastCallHasVideo = hasVideo;
-		CString commands;
-		CString numberFormated = FormatNumber(number, &commands);
-		pj_status_t pj_status = pjsua_verify_sip_url(StrToPj(numberFormated));
-		if (pj_status==PJ_SUCCESS) {
-			messagesDlg->AddTab(numberFormated, _T(""), TRUE, NULL, accountSettings.singleMode);
-			messagesDlg->Call(hasVideo,commands);
-			return true;
+		mainDlg->GotoTab(0);
+		return;
+	}
+	number.Trim();
+	pageDialer->SetNumber(number);
+#ifdef _GLOBAL_VIDEO
+		if (hasVideo) {
+			pageDialer->OnBnClickedVideoCall();
 		} else {
-			ShowErrorMessage(pj_status);
+			pageDialer->OnBnClickedCall();
 		}
-	}
-	return false;
-}
-
-bool CmainDlg::MessagesOpen(CString number)
-{
-	CString commands;
-	CString numberFormated = FormatNumber(number, &commands);
-	pj_status_t pj_status = pjsua_verify_sip_url(StrToPj(numberFormated));
-	if (pj_status==PJ_SUCCESS) {
-		messagesDlg->AddTab(numberFormated, _T(""), TRUE, NULL);
-		return true;
-	} else {
-		ShowErrorMessage(pj_status);
-	}
-	return false;
+#else 
+		pageDialer->OnBnClickedCall();
+#endif
 }
 
 void CmainDlg::AutoAnswer(pjsua_call_id call_id)
@@ -3053,7 +2978,7 @@ void CmainDlg::PlayerPlay(CString filename, bool noLoop, bool inCall)
 					||
 					(tone_gen && pjsua_conf_get_active_ports()<=3)
 					) {
-						msip_set_sound_device(inCall?msip_audio_output:msip_audio_ring);
+						SetSoundDevice(inCall?audio_output:audio_ring);
 				}
 				pjsua_conf_connect(pjsua_player_get_conf_port(player_id),0);
 			}
@@ -3071,6 +2996,13 @@ void CmainDlg::PlayerStop()
 	}
 }
 
+void CmainDlg::SetSoundDevice(int outDev, bool forse){
+	int in,out;
+	if (forse || pjsua_get_snd_dev(&in,&out)!=PJ_SUCCESS || audio_input!=in || outDev!=out ) {
+		pjsua_set_snd_dev(audio_input, outDev);
+	}
+}
+
 LRESULT CmainDlg::onCallAnswer(WPARAM wParam,LPARAM lParam)
 {
 	pjsua_call_id call_id = wParam;
@@ -3084,7 +3016,7 @@ LRESULT CmainDlg::onCallAnswer(WPARAM wParam,LPARAM lParam)
 			if (accountSettings.singleMode) {
 				call_hangup_all_noincoming();
 			}
-			msip_set_sound_device(msip_audio_output);
+			SetSoundDevice(audio_output);
 #ifdef _GLOBAL_VIDEO
 			if (lParam>0) {
 				createPreviewWin();

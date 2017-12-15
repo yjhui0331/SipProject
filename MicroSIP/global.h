@@ -35,7 +35,6 @@ enum EUserWndMessages
 	UM_ON_ACCOUNT,
 	UM_ON_REG_STATE2,
 	UM_ON_CALL_STATE,
-	UM_DELETE_CALL_USER_DATA,
 	UM_ON_CALL_TRANSFER_STATUS,
 	UM_ON_MWI_INFO,
 	UM_ON_CALL_MEDIA_STATE,
@@ -163,10 +162,6 @@ extern CString lastTransferNumber;
 extern pjsua_conf_port_id msip_conf_port_id;
 extern pjsua_call_id msip_conf_port_call_id;
 
-extern int msip_audio_input;
-extern int msip_audio_output;
-extern int msip_audio_ring;
-
 CString GetErrorMessage(pj_status_t status);
 BOOL ShowErrorMessage(pj_status_t status);
 BOOL IsIP(CString host);
@@ -199,17 +194,12 @@ CString get_account_username();
 struct call_tonegen_data *call_init_tonegen(pjsua_call_id call_id);
 BOOL call_play_digit(pjsua_call_id call_id, const char *digits, int duration = 160);
 void call_deinit_tonegen(pjsua_call_id call_id);
-void destroyDTMFPlayerTimerHandler(
+void destroyDTMFPlayer(
   HWND hwnd,
   UINT uMsg,
   UINT_PTR idEvent,
-  DWORD dwTime);
-void DTMFQueueTimerHandler(
-  HWND hwnd,
-  UINT uMsg,
-  UINT_PTR idEvent,
-  DWORD dwTime);
-
+  DWORD dwTime
+						   ) ;
 void msip_call_hangup_fast(pjsua_call_id call_id,pjsua_call_info *p_call_info = NULL);
 
 unsigned call_get_count_noincoming();
@@ -232,8 +222,6 @@ CStringA char2hex(char dec);
 
 CString URLMask(CString url, SIPURI* sipuri, pjsua_acc_id acc);
 
-void msip_set_sound_device(int outDev, bool forse = 0);
-void msip_call_dial_dtmf(pjsua_call_id call_id, CString digits);
 void msip_call_send_dtmf_info(pjsua_call_id current_call, pj_str_t digits);
 
 void msip_call_end(pjsua_call_id call_id);
@@ -242,7 +230,6 @@ void msip_conference_leave(pjsua_call_info *call_info, bool hold = false);
 void msip_call_hold(pjsua_call_info *call_info);
 void msip_call_unhold(pjsua_call_info *call_info = NULL);
 void msip_call_answer(pjsua_call_id call_id = PJSUA_INVALID_ID);
-void msip_call_process_dtmf_queue(call_user_data *user_data);
 CStringA msip_md5sum(CString *str);
 CString msip_url_mask(CString url);
 void msip_audio_output_set_volume(int val, bool mute = false);

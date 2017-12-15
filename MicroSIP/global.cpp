@@ -37,10 +37,6 @@ CString lastTransferNumber;
 pjsua_conf_port_id msip_conf_port_id;
 pjsua_call_id msip_conf_port_call_id;
 
-int msip_audio_input;
-int msip_audio_output;
-int msip_audio_ring;
-
 CList<int,int> DTMFTonegens;
 
 
@@ -334,7 +330,7 @@ bool SelectSIPAccount(CString number, pjsua_acc_id &acc_id, pj_str_t &pj_uri)
 }
 
 CString FormatNumber(CString number, CString *commands) {
-	int pos = number.Find(',');
+	int pos = number.Find('#');
 	if (pos>0 && pos<number.GetLength()-1) {
 		if (commands) {
 			*commands = number.Mid(pos+1);
@@ -437,7 +433,7 @@ struct call_tonegen_data *call_init_tonegen(pjsua_call_id call_id)
 static UINT_PTR destroyDTMFPlayerTimer = NULL;
 static UINT_PTR tonegenBusyTimer = NULL;
 
-void destroyDTMFPlayerTimerHandler(
+void destroyDTMFPlayer(
   HWND hwnd,
   UINT uMsg,
   UINT_PTR idEvent,
@@ -450,36 +446,6 @@ void destroyDTMFPlayerTimerHandler(
 			}
 			call_deinit_tonegen(-1);
 		}
-}
-
-void DTMFQueueTimerHandler(
-  HWND hwnd,
-  UINT uMsg,
-  UINT_PTR idEvent,
-  DWORD dwTime)
-{
-	KillTimer(hwnd, idEvent);
-	pjsua_call_id call_id = (pjsua_call_id) idEvent;
-	if (pjsua_call_is_active(call_id)) {
-		call_user_data *user_data = (call_user_data *) pjsua_call_get_user_data(call_id);
-		if (user_data && !user_data->commands.IsEmpty()) {
-			CString dtmf;
-			int pos = user_data->commands.Find(',');
-			if (pos!=-1) {
-				dtmf = user_data->commands.Mid(0,pos);
-				user_data->commands = user_data->commands.Mid(pos+1);
-			} else {
-				dtmf = user_data->commands;
-				user_data->commands.Empty();
-			}
-			if (!dtmf.IsEmpty()) {
-				msip_call_dial_dtmf(call_id, dtmf);
-			}
-			if (!user_data->commands.IsEmpty()) {
-				::SetTimer(hwnd, idEvent, 1000 + 200 * dtmf.GetLength() , (TIMERPROC)DTMFQueueTimerHandler);
-			}
-		}
-	}
 }
 
 void tonegenBusyHandler(
@@ -503,45 +469,6 @@ void tonegenBusyHandler(
 		if (hWnd) {
 			hWnd->PostMessage(UM_REFRESH_LEVELS, NULL, NULL);
 		}
-	}
-}
-
-void msip_set_sound_device(int outDev, bool forse){
-	int in,out;
-	if (forse || pjsua_get_snd_dev(&in,&out)!=PJ_SUCCESS || msip_audio_input!=in || outDev!=out ) {
-		pjsua_set_snd_dev(msip_audio_input, outDev);
-	}
-}
-
-
-void msip_call_dial_dtmf(pjsua_call_id call_id, CString digits)
-{
-	bool simulate = true;
-	if (call_id != PJSUA_INVALID_ID) {
-		pjsua_call_info call_info;
-		pjsua_call_get_info(call_id, &call_info);
-		if (call_info.media_status == PJSUA_CALL_MEDIA_ACTIVE) {
-			pj_str_t pj_digits = StrToPjStr ( digits );
-			if (accountSettings.DTMFMethod == 1) {
-				// in-band
-				simulate = !call_play_digit(call_id, StrToPj(digits));
-			} else if (accountSettings.DTMFMethod == 2) {
-				// RFC2833
-				pjsua_call_dial_dtmf(call_id, &pj_digits);
-			} else if (accountSettings.DTMFMethod == 3) {
-				// sip-info
-				msip_call_send_dtmf_info(call_id, pj_digits);
-			} else {
-				// auto
-				if (pjsua_call_dial_dtmf(call_id, &pj_digits) != PJ_SUCCESS) {
-					simulate = !call_play_digit(call_id, StrToPj(digits));
-				}
-			}
-		}
-	}
-	if (simulate && accountSettings.localDTMF) {
-		msip_set_sound_device(msip_audio_output);
-		call_play_digit(-1, StrToPj(digits));
 	}
 }
 
@@ -599,7 +526,7 @@ BOOL call_play_digit(pjsua_call_id call_id, const char *digits, int duration)
 		if (destroyDTMFPlayerTimer) {
 			KillTimer(NULL,destroyDTMFPlayerTimer);
 		}
-		destroyDTMFPlayerTimer = SetTimer(NULL, NULL, 5000, (TIMERPROC)destroyDTMFPlayerTimerHandler);
+		destroyDTMFPlayerTimer = SetTimer(NULL, NULL, 5000, (TIMERPROC)destroyDTMFPlayer);
 	}
 	return TRUE;
 }
