@@ -80,8 +80,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\..\pjsip\include;$(IncludePath)</IncludePath>
-    <LibraryPath>..\..\pjsip\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\..\pjlib\include;..\..\pjsip\include;..\..\pjlib-util\include;..\..\pjmedia\include;..\..\pjnath\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\lib;..\..\ffmpeg\lib\x86;..\..\SDL2\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -101,6 +101,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OutputFile>..\..\x86bin\$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalDependencies>imm32.lib;version.lib;winmm.lib;strmbasd.lib;Wtsapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -134,6 +135,8 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OutputFile>..\..\x86bin\$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalDependencies>imm32.lib;version.lib;winmm.lib;strmbasd.lib;Wtsapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

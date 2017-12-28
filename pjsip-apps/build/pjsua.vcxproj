@@ -310,7 +310,7 @@
     <IncludePath>..\..\ffmpeg\include;..\..\SDL2\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LibraryPath>..\..\SDL2\lib\x86;..\..\ffmpeg\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>..\..\SDL2\lib\x86;..\..\ffmpeg\lib\x86;$(LibraryPath)</LibraryPath>
     <IncludePath>..\..\ffmpeg\include;..\..\SDL2\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-Dynamic|Win32'">
