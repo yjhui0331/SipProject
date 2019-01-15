@@ -1300,8 +1300,10 @@ static pj_status_t app_init()
 	// read code [1/16/2019 yjhui]
     /** Create pjsua **/
     status = pjsua_create();
-    if (status != PJ_SUCCESS)
-	return status;
+	if (status != PJ_SUCCESS)
+	{
+		return status;
+	}
 
     /* Create pool for application */
     app_config.pool = pjsua_pool_create("pjsua-app", 1000, 1000);
