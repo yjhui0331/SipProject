@@ -1297,7 +1297,7 @@ static pj_status_t app_init()
     unsigned i;
     pj_pool_t *tmp_pool;
     pj_status_t status;
-
+	// read code [1/16/2019 yjhui]
     /** Create pjsua **/
     status = pjsua_create();
     if (status != PJ_SUCCESS)
